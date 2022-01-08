@@ -12,7 +12,8 @@ class FPGrowth:
     of FP Growth Algorithm.
     """
 
-    def _gettransobjects(line: str):
+
+    def _gettransobjects(self, line: str):
         """
         Processes text line.
         Extracts transactions objects and size.
@@ -216,46 +217,42 @@ class FPGrowth:
 
         self.root = Node.Node()
 
-        initialize = True
-        while initialize:
+        # Run over file twice. Once for item set count second for tree construction.
+        for i in range(0,2):
 
-            file = open(self.filename, "r")
+            with open(self.filename, "r") as file:
 
-            # Reading first line for number of transactions
-            self.trans_num = int(file.readline().rstrip())
+                # Reading first line for number of transactions
+                self.trans_num = int(file.readline().rstrip())
 
-            iternum = 1./self.trans_num
+                iternum = 1./self.trans_num
 
-            self.countTable[currentsize] = {}
+                self.countTable[currentsize] = {}
 
-            # self.keepTesting = False
+                # self.keepTesting = False
 
-            while True:
-                line = file.readline().rstrip()
+                while True:
+                    line = file.readline().rstrip()
 
-                # reached end of file
-                if not line:
-                    break
+                    # reached end of file
+                    if not line:
+                        break
 
-                transobjects, transize = self._gettransobjects(line)
+                    transobjects, transize = self._gettransobjects(line)
 
-                # Constructs the first count over the data set
-                if currentsize == 1:
-                    self._countitemsupport(k=currentsize,
-                                            transobjects=transobjects,
+                    # Constructs the first count over the data set
+                    # if currentsize == 1:
+                    if i == 0:
+                        self._countitemsupport(k=currentsize,
+                                                transobjects=transobjects,
+                                                iternum=iternum)
+                    #Construct FP Tree
+                    else:
+                        self._constructtree(transobjects=transobjects,
                                             iternum=iternum)
-                #Construct FP Tree
-                else:
-                    self._constructtree(transobjects=transobjects,
-                                        iternum=iternum)
 
 
-
-
-            file.close()
-
-
-            if currentsize == 1:
+            if i == 0:
                 self.explorationTable[frozenset()] = {}
                 self.resultTable = {}
                 self.resultTable[frozenset()] = []
@@ -270,9 +267,6 @@ class FPGrowth:
                 self.resultTable[frozenset()].sort(reverse=True, key= lambda tup: (tup[1], next(iter(tup[0]))))
 
 
-            else:
-
-                initialize = False
 
         """
         Now can recursivly traverse the tree
@@ -283,7 +277,7 @@ class FPGrowth:
         self.executiontime = end - start
 
 
-    def _frequentset_to_string(set_1):
+    def _frequentset_to_string(self, set_1):
         """
         Takes in a set and formats it as a string for output.
         :param set_1: Set to format
@@ -344,18 +338,18 @@ class FPGrowth:
         keylist, temp_result = self._getfrequentsetsorted()
 
 
-        file = open(filename, "w")
 
-        file.write(f"|FPs| = {self.numberFrequentItemSets}\n")
+        with open(filename, "w") as file:
 
-        for size in temp_result:
-            keylist[size].sort()
-            for set_1 in keylist[size]:
-                set_1 = list(map(str, set_1))
-                file.write(f"{self._frequentset_to_string(set_1)} : {temp_result[size][frozenset(set_1)]}\n")
+            file.write(f"|FPs| = {self.numberFrequentItemSets}\n")
+
+            for size in temp_result:
+                keylist[size].sort()
+                for set_1 in keylist[size]:
+                    set_1 = list(map(str, set_1))
+                    file.write(f"{self._frequentset_to_string(set_1)} : {temp_result[size][frozenset(set_1)]}\n")
 
 
-        file.close()
 
     def printterminal(self):
         """
