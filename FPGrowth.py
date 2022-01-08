@@ -12,7 +12,6 @@ class FPGrowth:
     of FP Growth Algorithm.
     """
 
-    @staticmethod
     def _gettransobjects(line: str):
         """
         Processes text line.
@@ -283,7 +282,7 @@ class FPGrowth:
         end = time.time()
         self.executiontime = end - start
 
-    @staticmethod
+
     def _frequentset_to_string(set_1):
         """
         Takes in a set and formats it as a string for output.
